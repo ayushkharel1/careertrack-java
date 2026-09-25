@@ -101,6 +101,10 @@ Stage values: `SAVED`, `APPLIED`, `INTERVIEW`, `OFFER`, `CLOSED`. Dates use `YYY
 
 ## Tests and engineering details
 
+**Verified:** 9 backend tests passed, plus a Playwright browser smoke test against the running application (create, edit, delete, search, stage filtering, board/list views, upcoming interviews, safe text rendering, and mobile overflow). GitHub Actions repeats both suites. [View the runs](https://github.com/ayushkharel1/careertrack-java/actions).
+
+[Mobile preview](docs/mobile.png). Browser screenshots use fictional sample data.
+
 The integration suite exercises real controllers, validation, services, and JDBC against an isolated in-memory H2 database. It covers:
 
 - Create → read → update → delete, normalization, and version increments.
