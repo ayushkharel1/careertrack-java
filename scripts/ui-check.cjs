@@ -1,0 +1,21 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8080');await page.getByText('Make space for your next chapter').waitFor();
+ page.on('dialog',d=>d.accept());await page.locator('#demoBtn').click();await page.getByRole('button',{name:'Edit Java Developer at Northstar Labs',exact:true}).waitFor();
+ assert.equal(await page.locator('.card').count(),7);assert.equal(await page.locator('#total').textContent(),'7');
+ await page.screenshot({path:'docs/dashboard.png',fullPage:true});
+ await page.locator('#search').fill('Houston');assert.equal(await page.locator('.card').count(),1);
+ await page.locator('#search').fill('');await page.locator('#stageFilter').selectOption('OFFER');assert.equal(await page.locator('.card').count(),1);
+ await page.locator('#stageFilter').selectOption('');await page.locator('#listBtn').click();assert.equal(await page.locator('tbody tr').count(),7);
+ await page.locator('#interviewNav').click();assert.equal(await page.locator('tbody tr').count(),1);
+ await page.locator('#pipelineNav').click();await page.locator('#addBtn').click();
+ await page.locator('[name=company]').fill('<img src=x onerror=alert(1)>');await page.locator('[name=role]').fill('Test Role');await page.locator('#saveBtn').click();await page.locator('#editor').waitFor({state:'hidden'});await page.waitForFunction(()=>document.querySelectorAll('tbody tr').length===8);assert.equal(await page.locator('td img').count(),0);
+ await page.getByRole('button',{name:'Edit Test Role at <img src=x onerror=alert(1)>',exact:true}).click();await page.locator('[name=stage]').selectOption('OFFER');await page.locator('#saveBtn').click();await page.locator('#editor').waitFor({state:'hidden'});await page.waitForFunction(()=>document.getElementById('offers').textContent==='2');
+ await page.getByRole('button',{name:'Edit Test Role at <img src=x onerror=alert(1)>',exact:true}).click();await page.locator('#deleteBtn').click();await page.locator('#editor').waitFor({state:'hidden'});await page.waitForFunction(()=>document.querySelectorAll('tbody tr').length===7);
+ await page.locator('#boardBtn').click();await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/mobile.png',fullPage:true});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);assert.deepEqual(errors,[]);
+ console.log('PASS: empty state, demo data, search, stage filter, list, upcoming interviews, create/edit/delete, text escaping, mobile overflow; zero JS errors. End-to-end checks against the running Spring Boot app.');await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});
